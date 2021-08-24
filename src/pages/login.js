@@ -13,6 +13,8 @@ import { loginUser } from '../redux/actions/userActions';
 const styles = {
     form: {
         textAlign: "center",
+        marginLeft: 10,
+        marginRight: 10,
     },
     pageTitle: {
         margin: "20px auto",

@@ -1,41 +1,40 @@
 import Grid from '@material-ui/core/Grid';
 // import axios from 'axios';
 import React from 'react';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import Scream from '../components/Scream';
+import ScreamSkeleton from '../util/ScreamSkeleton';
+import { connect } from 'react-redux';
+import Profile from '../components/Profile';
+import { getScreams } from '../redux/actions/dataActions';
 
-const Home = () => {
-    const [screams, setScreams] = useState(null);
-    const fetchScreams = async() => {
-        try {
-          const response = await fetch("/screams");
-          const screams = await response.json();
-          setScreams(screams);
-        } catch (error) {
-          console.log(error)
-        }
-      };
+const Home = ({ DATA, getScreams, user }) => {
+    const { commentCount } = DATA.scream;
+    
     useEffect(() => {
-        fetchScreams();
-    },[])
-    
-    console.log(screams)
-    
+        getScreams();
+    },[commentCount]);
+
+    const { screams, loading } = DATA;
+
     return (
         <Grid container spacing={3}>
             <Grid item sm={8} xs={12}>
                 { screams && screams.map((scream) => {
-                    return <Scream key={scream.screamId} {...scream}/>
+                    return <Scream key={scream.screamId} {...scream} scream={scream}/>
                     })
                 }
-                { !screams && <div><br></br><div className="dots-3"></div></div>
-                }
+                { loading && <ScreamSkeleton/> }
             </Grid>
             <Grid item sm={4} xs={12} >
-                <p>profie</p>
+                <Profile/>
             </Grid>
         </Grid>
     )
 }
+const mapStateToProps = ({ DATA, user }) => ({
+    DATA,
+    user
+})
 
-export default Home;
+export default connect(mapStateToProps, { getScreams })(Home);

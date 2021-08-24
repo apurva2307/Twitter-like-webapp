@@ -7,10 +7,14 @@ import Navbar from './components/Navbar';
 import Home from './pages/home';
 import Login from './pages/login';
 import Signup from './pages/signup';
+import User from './pages/user';
 import jwtDecode from 'jwt-decode';
-import AuthRoute from './util/AuthRoute'
+import AuthRoute from './util/AuthRoute';
 import { Provider } from 'react-redux';
 import store from './redux/store';
+import { getUserData, logoutUser } from './redux/actions/userActions';
+import { SET_AUTHENTICATED } from './redux/types';
+import axios from 'axios';
 
 const theme = createTheme({
   palette: {
@@ -29,19 +33,21 @@ const theme = createTheme({
   },
 })
 
-let authenticated = false;
+axios.defaults.baseURL = "https://asia-east2-social-media-app-6596e.cloudfunctions.net/api";
+
 const token = localStorage.FBIdToken;
 if(token){
   const decodedToken = jwtDecode(token);
   console.log("token", decodedToken)
   if(decodedToken.exp * 1000 < Date.now()){
-    window.location.href = "/login"
-    authenticated = false;
+    store.dispatch(logoutUser());
+    window.location.href = "/login";
   } else {
-    authenticated = true;
+    store.dispatch({ type: SET_AUTHENTICATED });
+    axios.defaults.headers.common["Authorization"] = token;
+    store.dispatch(getUserData());
   }
 }
-console.log(authenticated);
 
 class App extends Component {
   render() {
@@ -53,8 +59,10 @@ class App extends Component {
             <div className="container">
               <Switch>
                 <Route exact path="/" component={Home} />
-                <AuthRoute exact path="/login" component={Login} authenticated={authenticated}/>
-                <AuthRoute exact path="/signup" component={Signup} authenticated={authenticated}/>
+                <AuthRoute exact path="/login" component={Login} />
+                <AuthRoute exact path="/signup" component={Signup} />
+                <Route exact path="/users/:handle" component={User} />
+                <Route exact path="/users/:handle/scream/:screamId" component={User} />
               </Switch>
             </div>
           </BrowserRouter>

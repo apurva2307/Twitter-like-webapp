@@ -9,8 +9,8 @@ const initialState = {};
 const middleware = [thunk];
 const reducers = combineReducers({
     user: userReducer,
-    data: dataReducer,
-    UI: uiReducer
+    UI: uiReducer,
+    DATA: dataReducer
 })
 
 const composeEnhancers =
